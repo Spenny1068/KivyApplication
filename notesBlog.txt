@@ -1,0 +1,10 @@
+ImportError: no valuable window provider found
+-> broken for python 3, currently using python 2.7.14
+-> needed to install Cython for kivy compilation
+-> needed to install kivy dependancies
+
+Permissions denied: /dev/input/event*
+-> /dev/input/event is responsible for keyboard and mice input events
+-> adding user to 'input' group solved problem
+-> sudo usermod -a -G <group> <user> then re-login
+-> note: 'whoami' will show user name

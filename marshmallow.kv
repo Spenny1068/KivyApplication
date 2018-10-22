@@ -1,0 +1,86 @@
+
+<MarshmallowGame>:
+    ball: marshmallow_ball
+    background: bacgroundPic
+
+    Ball:
+        id: marshmallow_ball
+        center: self.parent.center
+
+    Background:
+        id: bacgroundPic
+
+<Background>:
+    canvas:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source:"brick.jpg"
+
+        Rectangle:
+            pos: self.pos[0], self.pos[1]+self.height
+            size: self.size
+            source:"brick.jpg"
+
+<Ball>:
+    size: 50, 50
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: 50, 50
+            source: "ball.png"
+
+
+<ScreenManager>:
+    id: screen_manager
+
+    Screen:
+        name: 'MenuScreen'
+        FloatLayout:
+        #Background picture
+            canvas:
+                Rectangle:
+                    source:"marshmallow.jpg"
+                    pos: self.pos
+                    size: self.size
+        #Header
+            Label:
+                text: 'MARSHMALLOW'
+        #Play Button
+            Button:
+                text: 'PLAY'
+                pos_hint: {'x': 0.25, 'y': 0.1}
+                size_hint: 0.5, 0.1
+                on_press: app.root.current = 'PlayScreen'
+
+    Screen:
+        name: 'PlayScreen'
+        FloatLayout:
+            Button:
+                text: "to MenuScreen"
+                pos_hint: {'x': 0.7, 'y': 0.1}
+                size_hint: 0.3, 0.1
+                on_press: app.root.current = "MenuScreen"
+            Button:
+                text: "to ResultScreen"
+                pos_hint: {'x': 0.0, 'y': 0.1}
+                size_hint: 0.3, 0.1
+                on_press: app.root.current = "ResultScreen"
+
+        MarshmallowGame:
+            id: game
+
+    Screen:
+        name: 'ResultScreen'
+        Label:
+            text: 'This is ResultScreen'
+        Button:
+            text: 'Goto PlayScreen'
+            pos_hint: {'x': 0.7, 'y': 0.1}
+            size_hint: 0.3, 0.1
+            on_press: app.root.current = 'PlayScreen'
+        Button:
+            text: 'Go to StartScreen'
+            pos_hint: {'x': 0.0, 'y': 0.1}
+            size_hint: 0.3, 0.1
+            on_press: app.root.current = 'MenuScreen'
