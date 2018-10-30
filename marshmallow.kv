@@ -1,16 +1,21 @@
 
 <MarshmallowGame>:
+    background: backgroundPic
     ball: marshmallow_ball
-    background: bacgroundPic
+
+    Background:
+        id: backgroundPic
 
     Ball:
         id: marshmallow_ball
         center: self.parent.center
 
-    Background:
-        id: bacgroundPic
+    Block:
+        id: blk
 
 <Background>:
+    #Make sure background is always size of window
+    size: self.parent.size
     canvas:
         Rectangle:
             pos: self.pos
@@ -18,9 +23,17 @@
             source:"brick.jpg"
 
         Rectangle:
-            pos: self.pos[0], self.pos[1]+self.height
+            pos: self.pos[0], self.pos[1]+self.size[1]
             size: self.size
             source:"brick.jpg"
+
+<Block>:
+    size: 100, 100
+    canvas:
+        Rectangle:
+            size: 100, 100
+            pos: self.pos
+            source: 'block.png'
 
 <Ball>:
     size: 50, 50
@@ -29,7 +42,6 @@
             pos: self.pos
             size: 50, 50
             source: "ball.png"
-
 
 <ScreenManager>:
     id: screen_manager
@@ -55,20 +67,16 @@
 
     Screen:
         name: 'PlayScreen'
+        
+		MarshmallowGame:
+            id: game
+
         FloatLayout:
             Button:
-                text: "to MenuScreen"
-                pos_hint: {'x': 0.7, 'y': 0.1}
-                size_hint: 0.3, 0.1
+                text: "Menu"
+                pos_hint: {'x': 0.01, 'y': 0.95}
+                size_hint: 0.1, 0.05
                 on_press: app.root.current = "MenuScreen"
-            Button:
-                text: "to ResultScreen"
-                pos_hint: {'x': 0.0, 'y': 0.1}
-                size_hint: 0.3, 0.1
-                on_press: app.root.current = "ResultScreen"
-
-        MarshmallowGame:
-            id: game
 
     Screen:
         name: 'ResultScreen'
