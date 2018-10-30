@@ -17,6 +17,10 @@ from kivy.properties import ObjectProperty, NumericProperty
 from kivy.clock import Clock
 from kivy.clock import mainthread
 
+#### TODO ####
+#When block is off screen, remove from blocks[]
+#addBlock function: when block hits ground, use addBlock() to add a new block
+#Add collision detection and 'edges' to each block in blocks[]
 
 #Infinite vertical scrolling background
 class Background(Widget):
@@ -29,27 +33,42 @@ class Background(Widget):
 
 #Array of falling blocks
 class Block(Widget):
-	
-	#each blocks has its own random xpos, fallSpeed
+	ground = None	#boolean True if fallSpeed = 0
+	invisible = None	#boolean True if block.pos[1] < -block.size[1]
+
+	#Each blocks has its own random xpos, fallSpeed
 	def __init__(self, *args, **kwargs):
 		super(Block, self).__init__(**kwargs)
-		self.pos[0] = random.randint(1, 900)
-		self.pos[1] = 800
+		self.pos = [random.randint(1, 900), 800]
 		self.fallSpeed = random.randint(5, 8)
+		self.ground = False
+		self.invisible = False
 
 	def update(self):
 		self.pos[1] -= self.fallSpeed
 		if (self.pos[1] < 0):
-			self.pos[1] = 800
+			self.fallSpeed = 0 
+			self.ground = True
+		if (self.pos[1] < -self.size[1]):
+			self.invisible = True
+	
+	#If block is on ground, it should dissapear only when character is increasing height
+	def dissapear(self, speed):
+		self.pos[1] -= speed
 
 
 #Main Character
 class Ball(Widget):
-	velocityX = 0   #pixels per frame	
-	velocityY = 0
-	gravity = 1.5   #vertical drag
-	dragX = 1.1     #Horizontal friction
+	vCenter = None	#Vertical center of character
+	hCenter = None	#Horizontal center of character
 
+	def __init__(self, *args, **kwargs):
+		super(Ball, self).__init__(**kwargs)
+		self.velocityX = 0   #pixels per frame	
+		self.velocityY = 0
+		self.gravity = 1.5   #vertical drag
+		self.dragX = 1.1     #Horizontal friction
+			
 	def move(self, keycode):
 		if(keycode == 'left'):
 			self.velocityX = -10
@@ -62,6 +81,10 @@ class Ball(Widget):
 
 
 	def update(self):
+		#update vCenter and hCenter
+		self.vCenter = self.pos[1] + (self.size[1] / 2) 
+		self.hCenter = self.pos[0] + (self.size[0] / 2)
+		
 		#position of ball will move by the velocity every frame
 		self.pos[0] += self.velocityX
 		self.pos[1] += self.velocityY
@@ -77,7 +100,7 @@ class Ball(Widget):
 			self.pos[0] = 1000
 
         #Floor Level
-		if(self.pos[1] < 15):
+		if(self.pos[1] < 5):
 			self.velocityY = 0
 
 
@@ -109,14 +132,24 @@ class MarshmallowGame(Widget):
 			self.ids.blk.add_widget(block)
 			self.blocks.append(block)
 
+	def addBlock(self):
+		block = Block()	
+		self.ids.blk.add_widget(block)
+		self.blocks.append(block)
+
+		
 	def update(self, dt):
 		self.ball.update()
 		for b in self.blocks:
 			b.update()
+			#if (b.invisible):
+			#	blocks.remove()
 
         #TODO: figure out way to smooth transition
-		if(self.ball.pos[1] + (self.ball.size[1] / 2) > self.size[1] * self.scroll_pos):
+		if(self.ball.vCenter > self.size[1] * self.scroll_pos):
 			self.background.update()
+			for b in self.blocks:
+				if b.ground: b.dissapear(self.background.scrollSpeed)
 
 
     #####     HANDLE INPUT    #######
