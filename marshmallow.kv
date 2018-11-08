@@ -20,12 +20,12 @@
         Rectangle:
             pos: self.pos
             size: self.size
-            source:"brick.jpg"
+            source:"/home/spencer/code/MyApp/gameArt/brick.jpg"
 
         Rectangle:
             pos: self.pos[0], self.pos[1]+self.size[1]
             size: self.size
-            source:"brick.jpg"
+            source:"/home/spencer/code/MyApp/gameArt/brick.jpg"
 
 <Block>:
     size: 100, 100
@@ -33,7 +33,7 @@
         Rectangle:
             size: 100, 100
             pos: self.pos
-            source: 'block.png'
+            source: "/home/spencer/code/MyApp/gameArt/block.png"
 
 <Ball>:
     size: 50, 50
@@ -41,32 +41,32 @@
         Ellipse:
             pos: self.pos
             size: 50, 50
-            source: "ball.png"
+            source: "/home/spencer/code/MyApp/gameArt/ball.png"
 
 <ScreenManager>:
     id: screen_manager
 
     Screen:
-        name: 'MenuScreen'
+        name: "MenuScreen"
         FloatLayout:
         #Background picture
             canvas:
                 Rectangle:
-                    source:"marshmallow.jpg"
+                    source:"/home/spencer/code/MyApp/gameArt/marshmallow.jpg"
                     pos: self.pos
                     size: self.size
         #Header
             Label:
-                text: 'MARSHMALLOW'
+                text: "MARSHMALLOW"
         #Play Button
             Button:
                 text: 'PLAY'
                 pos_hint: {'x': 0.25, 'y': 0.1}
                 size_hint: 0.5, 0.1
-                on_press: app.root.current = 'PlayScreen'
+                on_press: app.root.current = "PlayScreen"
 
     Screen:
-        name: 'PlayScreen'
+        name: "PlayScreen"
         
 		MarshmallowGame:
             id: game
@@ -77,18 +77,20 @@
                 pos_hint: {'x': 0.01, 'y': 0.95}
                 size_hint: 0.1, 0.05
                 on_press: app.root.current = "MenuScreen"
+			#Implement heightScore
+			Label:
 
     Screen:
-        name: 'ResultScreen'
+        name: "ResultScreen"
         Label:
-            text: 'This is ResultScreen'
+            text: "This is ResultScreen"
         Button:
-            text: 'Goto PlayScreen'
+            text: "Goto PlayScreen"
             pos_hint: {'x': 0.7, 'y': 0.1}
             size_hint: 0.3, 0.1
-            on_press: app.root.current = 'PlayScreen'
+            on_press: app.root.current = "PlayScreen"
         Button:
-            text: 'Go to StartScreen'
+            text: "Go to StartScreen"
             pos_hint: {'x': 0.0, 'y': 0.1}
             size_hint: 0.3, 0.1
-            on_press: app.root.current = 'MenuScreen'
+            on_press: app.root.current = "MenuScreen"
