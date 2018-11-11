@@ -3,9 +3,6 @@ import kivy
 import random
 
 kivy.require('1.9.1')
-from kivy.config import Config
-Config.set('graphics', 'width', '1000')
-Config.set('graphics', 'height', '800')
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -187,6 +184,7 @@ class ScreenManager(ScreenManager):
 
 class MarshmallowApp(App):  
     def build(self):
+        Window.size = (600, 600)
         return ScreenManager()
 
 if __name__ == '__main__':
