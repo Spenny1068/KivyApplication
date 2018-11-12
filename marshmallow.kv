@@ -28,20 +28,20 @@
             source:"/Users/spenc/code/KivyApplication/gameArt/brick.jpg"
 
 <Block>:
-    size: 100, 100
+    size: 150, 150
     canvas:
         Rectangle:
-            size: 100, 100
+            size: 150, 150
             pos: self.pos
             source: "/Users/spenc/code/KivyApplication/gameArt/block.png"
 
 <Ball>:
-    size: 50, 50
+    size: 125, 125
     canvas:
         Ellipse:
             pos: self.pos
-            size: 50, 50
-            source: "/Users/spenc/code/KivyApplication/gameArt/ball.png"
+            size: 125, 125
+            source: "/Users/spenc/code/KivyApplication/gameArt/BirdSheets/Frames/frame-8.png"
 
 <ScreenManager>:
     id: screen_manager
@@ -77,8 +77,6 @@
                 pos_hint: {'x': 0.01, 'y': 0.95}
                 size_hint: 0.1, 0.05
                 on_press: app.root.current = "MenuScreen"
-			#Implement heightScore
-			Label:
 
     Screen:
         name: "ResultScreen"

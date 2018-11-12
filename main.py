@@ -2,7 +2,7 @@
 import kivy
 import random
 
-kivy.require('1.9.1')
+kivy.require('1.10.1')
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -15,8 +15,6 @@ from kivy.clock import Clock
 from kivy.clock import mainthread
 
 #### TODO ####
-#When block is off screen, remove from blocks[]
-#addBlock function: when block hits ground, use addBlock() to add a new block
 #Add collision detection and 'edges' to each block in blocks[]
 #Figure out how to implement heightScore
 
@@ -39,7 +37,7 @@ class Block(Widget):
     #Each blocks has its own random xpos, fallSpeed
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(**kwargs)
-        self.pos = [random.randint(1, 900), 800]
+        self.pos = [random.randint(1, 900), 1200]
         self.fallSpeed = random.randint(5, 8)
         self.ground, self.invisible, self.spawnBlock = False, False, True
 
@@ -60,6 +58,7 @@ class Block(Widget):
 
 #Main Character
 class Ball(Widget):
+    heightScore = NumericProperty(0)
     vCenter = None  #Vertical center of character
     hCenter = None  #Horizontal center of character
 
@@ -107,7 +106,6 @@ class Ball(Widget):
 
 #Main game class
 class MarshmallowGame(Widget):
-    heightScore = NumericProperty(0)
     NUM_BLOCKS = 3  #number of blocks in array
 
     background = ObjectProperty(None)
@@ -139,6 +137,7 @@ class MarshmallowGame(Widget):
 
         
     def update(self, dt):
+        #print("Length of blocks array: " + str(len(self.blocks)))
         self.ball.update()
         for index, b in enumerate(self.blocks):
             b.update()
