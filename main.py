@@ -1,5 +1,6 @@
 #!/bin/python
 import kivy
+import logging
 import random
 
 kivy.require('1.10.1')
@@ -15,9 +16,13 @@ from kivy.clock import Clock
 from kivy.clock import mainthread
 
 #### TODO ####
-#Add collision detection and 'edges' to each block in blocks[]
+#Figure out condition for addBlock() so that it doesn't conflict with blockCol
 #Figure out how to implement heightScore
 
+
+#Global array of blocks
+NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
+blocks = [] * NUM_BLOCKS
 
 #Infinite vertical scrolling background
 class Background(Widget):
@@ -33,22 +38,39 @@ class Block(Widget):
     ground = None        #boolean True if block.pos[1] < 0 
     invisible = None     #boolean True if block.pos[1] < -block.size[1]
     spawnBlock = None    #boolean True if block has never had ground = True
+    blockCol = None      #boolean True if block has collided with any other widget
+    playerCol = None     #boolean True if block has collided with player widget
 
     #Each blocks has its own random xpos, fallSpeed
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(**kwargs)
+        self.ground, self.invisible, self.spawnBlock, self.blockCol = False, False, True, False
+        #self.fallSpeed = random.randint(5, 8)
+        self.fallSpeed = 6
+        #self.findPos()
         self.pos = [random.randint(1, 900), 1200]
-        self.fallSpeed = random.randint(5, 8)
-        self.ground, self.invisible, self.spawnBlock = False, False, True
 
     def update(self):
         self.pos[1] -= self.fallSpeed
         if (self.pos[1] < 0):
             self.fallSpeed = 0 
             self.ground = True
-
+        if (self.blockCol):
+            self.fallSpeed = 0
         if (self.pos[1] < -self.size[1]):
             self.invisible = True
+
+    #TODO: Find spawn xpos such that its not inside another block
+    #1 Update blockCol using detectCollision()
+    #2 if blockCol, re-roll self.pos[0]
+    def findPos(self):
+        pass
+
+    #Axis-aligned bounding box collision detection
+    def detectCollision(self, x, y, width, height):
+        if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
+            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
+            self.blockCol = True
     
     #If block is on ground, it should dissapear only when character is increasing height
     def dissapear(self, speed):
@@ -106,11 +128,8 @@ class Ball(Widget):
 
 #Main game class
 class MarshmallowGame(Widget):
-    NUM_BLOCKS = 3  #number of blocks in array
-
     background = ObjectProperty(None)
     ball = ObjectProperty(None)
-    blocks = [] * NUM_BLOCKS
     
     #Percentage way up background when ball pos will scroll background
     scroll_pos = 1.0/2.0
@@ -125,32 +144,40 @@ class MarshmallowGame(Widget):
     
     @mainthread #delay function so kv file gets scanned first, making the ids list viable   
     def initBlocks(self):
-        for i in range(self.NUM_BLOCKS): #0 to (NUM_BLOCKS - 1)
+        for i in range(NUM_BLOCKS): #0 to (NUM_BLOCKS - 1)
             block = Block()
             self.ids.blk.add_widget(block)
-            self.blocks.append(block)
+            blocks.append(block)
 
     def addBlock(self):
         block = Block() 
         self.ids.blk.add_widget(block)
-        self.blocks.append(block)   
+        blocks.append(block)   
 
         
     def update(self, dt):
-        #print("Length of blocks array: " + str(len(self.blocks)))
+        #Update Ball
         self.ball.update()
-        for index, b in enumerate(self.blocks):
+
+        #Update Blocks
+        for index, b in enumerate(blocks):
             b.update()
-            if (b.invisible): del self.blocks[index]
-            if (b.ground and b.spawnBlock):
+            if (b.invisible): del blocks[index]
+            if ((b.ground or b.blockCol) and b.spawnBlock):
                 self.addBlock()
                 b.spawnBlock = False
 
+            #Check collision for all blocks
+            for index2, b2 in enumerate(blocks):
+                if (index2 != index): 
+                    b.detectCollision(b2.pos[0], b2.pos[1], b2.size[0], b2.size[1])
+
 
         #TODO: figure out way to smooth transition
+        #Update Background
         if(self.ball.vCenter > self.size[1] * self.scroll_pos):
             self.background.update()
-            for b in self.blocks: b.dissapear(self.background.scrollSpeed)
+            for b in blocks: b.dissapear(self.background.scrollSpeed)
 
 
     #####     HANDLE INPUT    #######
