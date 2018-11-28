@@ -16,11 +16,11 @@ from kivy.clock import Clock
 from kivy.clock import mainthread
 
 #### TODO ####
-#Figure out condition for addBlock() so that it doesn't conflict with blockCol
+#Now blocks at bottom are not stopping when hitting other blocks already on ground
 #Figure out how to implement heightScore
 
 
-#Global array of blocks
+#Global variables
 NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
 blocks = [] * NUM_BLOCKS
 
@@ -45,10 +45,8 @@ class Block(Widget):
     def __init__(self, *args, **kwargs):
         super(Block, self).__init__(**kwargs)
         self.ground, self.invisible, self.spawnBlock, self.blockCol = False, False, True, False
-        #self.fallSpeed = random.randint(5, 8)
         self.fallSpeed = 6
-        #self.findPos()
-        self.pos = [random.randint(1, 900), 1200]
+        self.findPos()
 
     def update(self):
         self.pos[1] -= self.fallSpeed
@@ -60,17 +58,43 @@ class Block(Widget):
         if (self.pos[1] < -self.size[1]):
             self.invisible = True
 
-    #TODO: Find spawn xpos such that its not inside another block
-    #1 Update blockCol using detectCollision()
-    #2 if blockCol, re-roll self.pos[0]
+    #Find spawn xpos such that its not inside another block
     def findPos(self):
-        pass
+        self.pos = [random.randint(1, 900), 1200]
+
+        #print("s.pos[0]: " + str(self.pos[0]) + " s.pos[1]: " + str(self.pos[1]) + " s.size[0]: " + str(self.size[0]) + " s.size[1]: " + str(self.size[0]))
+        x = 0
+
+        #Check for collisions. If there is one, reRoll self.pos[0]
+        #TODO: Optimize this loop to check only for other blocks with a spawn y value
+        while (x < len(blocks)):
+            self.detectCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
+            #print("index: " + str(x) + " x: " + str(blocks[x].pos[0]) + " y: " + str(blocks[x].pos[1]) + " width: " + str(blocks[x].size[0]) + " height: " + str(blocks[x].size[1]))
+            while(self.blockCol):
+                #print("Block collision with index: " + str(x))
+                self.reRoll()
+                x = -1
+            x += 1
+
+        #print("index: " + str(len(blocks)) + " Final position = " + str(self.pos[0]))
+        #print("\n")
+
+    #Find a new block self.pos[0]
+    def reRoll(self):
+        self.pos = [random.randint(1, 900), 1200]
+        print("reRoll: " + str(self.pos[0]))
+        for x in range(0, len(blocks)):
+            self.detectCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
+
 
     #Axis-aligned bounding box collision detection
     def detectCollision(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
             self.blockCol = True
+
+        else:
+            self.blockCol = False
     
     #If block is on ground, it should dissapear only when character is increasing height
     def dissapear(self, speed):
@@ -145,25 +169,24 @@ class MarshmallowGame(Widget):
     @mainthread #delay function so kv file gets scanned first, making the ids list viable   
     def initBlocks(self):
         for i in range(NUM_BLOCKS): #0 to (NUM_BLOCKS - 1)
-            block = Block()
-            self.ids.blk.add_widget(block)
-            blocks.append(block)
+            self.addBlock()
 
     def addBlock(self):
         block = Block() 
         self.ids.blk.add_widget(block)
         blocks.append(block)   
+        print("new block index" + str(len(blocks)))
 
-        
     def update(self, dt):
         #Update Ball
         self.ball.update()
 
         #Update Blocks
         for index, b in enumerate(blocks):
+            print("Index, blockCol = " + str(index) + str(b.blockCol))
             b.update()
             if (b.invisible): del blocks[index]
-            if ((b.ground or b.blockCol) and b.spawnBlock):
+            if (b.ground and b.spawnBlock):
                 self.addBlock()
                 b.spawnBlock = False
 
