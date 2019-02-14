@@ -4,6 +4,27 @@ A high height will result in a high score. This game is an ongoing side project 
 Will eventually be playable on mobile, making use of the device's accelerometer and multi touch capabilities.
 
 
+#### FLOW OF CODE ####
+1. Spawn 3 blocks
+2. init: self.ground, self.invisible, self.spawnBlock, self.blockCol = False, False, True, False
+3. give it a random pos[0]
+4. Check for collisions (call detectCollisions()). If there is one, reRoll self.pos[0]
+5. For every block, b.update() is called 30 times per second
+
+Check for collisions
+5. detectCollisions() will set self.blockCol = TRUE if there is a collision, otherwise it will set it to FALSE
+
+6. b.update() will always do self.pos[1] -= self.fallSpeed:
+set fallSpeed = 0 and ground = TRUE if self.pos[1] < 0]
+set fallSpeed = 0 if blockCol = TRUE
+set invisible = TRUE if self.pos[1] < -self.size[1]
+
+7. MarshmallowGame.update() will 
+delete block from array if b.invisible
+call addBlock() and set spawnBlock = FALSE if fallSpeed == 0 AND spawnBlock = TRUE
+
+
+
 #### NOTES ####
 ImportError: no valuable window provider found
 -> broken for python 3, currently using python 2.7.14

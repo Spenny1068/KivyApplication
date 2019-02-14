@@ -2,7 +2,7 @@
 import kivy
 import random
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.CRITICAL)
 
 kivy.require('1.10.1')
 
@@ -17,13 +17,12 @@ from kivy.clock import Clock
 from kivy.clock import mainthread
 
 #### TODO ####
-#Figure out condition for blockCol to use addBlock()
-#Now blocks at bottom are not stopping when hitting other blocks already on ground
+#Why wont logging.debug work tf
 #Figure out how to implement heightScore
 
 
 #Global variables
-NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
+NUM_BLOCKS = 4 #Remember theres 1 extra block not in array above screen
 blocks = [] * NUM_BLOCKS
 
 #Infinite vertical scrolling background
@@ -50,6 +49,10 @@ class Block(Widget):
         self.fallSpeed = 6
         self.findPos()
 
+        #hardcode positions for testing
+        #self.pos[0] = 20
+        #self.pos[1] = 1200
+
     def update(self):
         self.pos[1] -= self.fallSpeed
         if (self.pos[1] < 0):
@@ -64,43 +67,42 @@ class Block(Widget):
     def findPos(self):
         self.pos = [random.randint(1, 900), 1200]
 
-        logging.info('s.pos[0]: %s s.pos[1]: %s s.size[0]: %s s.size[1]: %s', str(self.pos[0]), str(self.pos[1]), str(self.size[1]), str(self.size[0]))
+        #logging.info('s.pos[0]: %s s.pos[1]: %s s.size[0]: %s s.size[1]: %s', str(self.pos[0]), str(self.pos[1]), str(self.size[1]), str(self.size[0]))
         x = 0
 
         #Check for collisions. If there is one, reRoll self.pos[0]
         #TODO: Optimize this loop to check only for other blocks with a spawn y value
         while (x < len(blocks)):
-            self.detectCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
-            logging.info('index: %s x: %s y: %s width: %s height: %s', x, blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
-            while(self.blockCol):
-                logging.info('%s Block collision with index: ', x)
+            #logging.info('index: %s x: %s y: %s width: %s height: %s', x, blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
+            while(self.Collision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])):
+                #logging.info('%s Block collision with index: ', x)
                 self.reRoll()
                 x = -1
             x += 1
 
-        logging.info('index: %s Final position = %s', len(blocks), self.pos[0])
-        logging.info('\n')
+        #logging.info('index: %s Final position = %s', len(blocks), self.pos[0])
+        #logging.info('\n')
 
     #Find a new block self.pos[0]
     def reRoll(self):
         self.pos = [random.randint(1, 900), 1200]
-        logging.info('reRoll: %s', self.pos[0])
+        #logging.info('reRoll: %s', self.pos[0])
         for x in range(0, len(blocks)):
-            self.detectCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
+            self.Collision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
 
 
     #Axis-aligned bounding box collision detection
-    def detectCollision(self, x, y, width, height):
+    def Collision(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
-            self.blockCol = True
+            return True 
 
         else:
-            self.blockCol = False
+            return False
     
     #If block is on ground, it should dissapear only when character is increasing height
     def dissapear(self, speed):
-        if (self.ground):
+        if (self.ground or self.fallSpeed == 0):
             self.pos[1] -= speed
 
 
@@ -178,7 +180,7 @@ class MarshmallowGame(Widget):
         block = Block() 
         self.ids.blk.add_widget(block)
         blocks.append(block)   
-        logging.info('new block index %s', len(blocks))
+        #logging.info('new block index %s', len(blocks))
 
     def update(self, dt):
         #Update Ball
@@ -186,17 +188,24 @@ class MarshmallowGame(Widget):
 
         #Update Blocks
         for index, b in enumerate(blocks):
-            logging.info('Index, blockCol = %s %s', index, b.blockCol)
-            b.update()
-            if (b.invisible): del blocks[index]
-            if (b.ground and b.spawnBlock):
-                self.addBlock()
-                b.spawnBlock = False
+            #logging.info('Index, blockCol: %s %s', index, b.blockCol)
 
             #Check collision for all blocks
             for index2, b2 in enumerate(blocks):
-                if (index2 != index): 
-                    b.detectCollision(b2.pos[0], b2.pos[1], b2.size[0], b2.size[1])
+                if (index2 != index and b.Collision(b2.pos[0], b2.pos[1], b2.size[0], b2.size[1])):
+                    #logging.info('Collision: Block %s and %s', index, index2)
+                    b.blockCol = True
+
+            #update b.pos[1], b.stopped(fallSpeed = 0), b.ground,and b.invisible for every block in array 
+            b.update()
+
+            #When block is completely off screen, delete from array
+            if (b.invisible): del blocks[index]
+
+            if (b.fallSpeed == 0 and b.spawnBlock):
+                self.addBlock()
+                b.spawnBlock = False
+
 
 
         #TODO: figure out way to smooth transition
@@ -223,7 +232,7 @@ class MarshmallowGame(Widget):
     #When a key is released
     def keyReleased(self, keyboard, keycode):
         if(keycode[1] == 'w'):
-            logging.info("%s released", keycode[1])
+            #logging.info("%s released", keycode[1])
             pass
 
     #Permanently Unbind keyboard
