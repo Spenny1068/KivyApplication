@@ -19,10 +19,12 @@ from kivy.clock import mainthread
 #### TODO ####
 #Why wont logging.debug work tf
 #Figure out how to implement heightScore
+#Implement restart button so we don't have to CTRL+C every time
+#Implement character-block collision
 
 
 #Global variables
-NUM_BLOCKS = 4 #Remember theres 1 extra block not in array above screen
+NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
 blocks = [] * NUM_BLOCKS
 
 #Infinite vertical scrolling background
@@ -173,20 +175,38 @@ class MarshmallowGame(Widget):
     
     @mainthread #delay function so kv file gets scanned first, making the ids list viable   
     def initBlocks(self):
-        for i in range(NUM_BLOCKS): #0 to (NUM_BLOCKS - 1)
-            self.addBlock()
+        self.addBlock(NUM_BLOCKS)
 
-    def addBlock(self):
-        block = Block() 
-        self.ids.blk.add_widget(block)
-        blocks.append(block)   
+    def addBlock(self, n):
         #logging.info('new block index %s', len(blocks))
+        for x in range(0, n):
+            block = Block() 
+            self.ids.blk.add_widget(block)
+            blocks.append(block)   
+
+    #So we don't have to CTRL+C everytime to reset game
+    def resetPlayScreen(self):
+
+        #Move all blocks above screen and then empty array
+        for b in blocks: b.pos[1] = 1500
+        blocks.clear()
+        self.addBlock(NUM_BLOCKS)
+
+        #Reset character position
+
+
+        #Reset score
+        
+
 
     def update(self, dt):
-        #Update Ball
+
+        #### UPDATE BALL ####
         self.ball.update()
 
-        #Update Blocks
+        #### UPDATE BLOCKS ####
+        #logging.info('len(blocks) = %s', len(blocks))
+
         for index, b in enumerate(blocks):
             #logging.info('Index, blockCol: %s %s', index, b.blockCol)
 
@@ -202,14 +222,12 @@ class MarshmallowGame(Widget):
             #When block is completely off screen, delete from array
             if (b.invisible): del blocks[index]
 
+            #Conditions to call addBlock()
             if (b.fallSpeed == 0 and b.spawnBlock):
-                self.addBlock()
+                self.addBlock(1)
                 b.spawnBlock = False
 
-
-
-        #TODO: figure out way to smooth transition
-        #Update Background
+        #### UPDATE BACKGROUND ####
         if(self.ball.vCenter > self.size[1] * self.scroll_pos):
             self.background.update()
             for b in blocks: b.dissapear(self.background.scrollSpeed)
@@ -222,6 +240,10 @@ class MarshmallowGame(Widget):
         #Horizontal movement
         if(keycode[1] == 'left' or keycode[1] == 'right' or keycode[1] == 'up' or keycode[1] == 'down'):
             self.ball.move(keycode[1])
+
+        #We need to make this into a reset button 
+        if(keycode[1] == 'delete'):
+            self.resetPlayScreen()
 
         #Pressing escape will permanently unbind keyboard
         if(keycode[1] == 'escape'):
