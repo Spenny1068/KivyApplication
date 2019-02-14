@@ -19,36 +19,34 @@ class Ball(Widget):
         self.gravity = 1.5   #vertical drag
         self.dragX = 1.1     #Horizontal friction
             
-    def move(self, keycode):
-        if(keycode == 'left'):
-            self.velocityX = -10
-        if(keycode == 'right'):
-            self.velocityX = 10
-        if(keycode == 'up'):
-            self.velocityY = 15
-        if(keycode == 'down'):
-            self.velocityY = -10
+    def moveLeft(self, enabled):
+        if (enabled): self.velocityX = -10
+
+    def moveRight(self, enabled):
+        if (enabled): self.velocityX = 10
+
+    def moveUp(self, enabled):
+        if (enabled): self.velocityY = 15
+
+    def moveDown(self, enabled):
+        if (enabled): self.velocityY = -10
 
     def playerCollisionX(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX > 0):
             return True
-            print ("left side hit")
             
         elif ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX < 0):
-            print ("right side hit")
             return False
 
     def playerCollisionY(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityY < 0):
-            print ("top side hit")
             return True
             
         elif ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX >= 0):
-            print ("bottom side hit")
             return False
 
     def update(self):

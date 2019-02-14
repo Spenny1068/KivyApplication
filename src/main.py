@@ -1,6 +1,5 @@
 #!/bin/python
 import kivy
-import random
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -8,7 +7,6 @@ kivy.require('1.10.1')
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.core.window import Keyboard
@@ -25,11 +23,16 @@ import block
 #Figure out how to implement heightScore
 #Implement restart button so we don't have to CTRL+C every time
 #Implement character-block collision
+#Add functionality to move function to disable arrow key when collision happens
 
 #Main game class
 class MarshmallowGame(Widget):
     background = ObjectProperty(None)
     ball = ObjectProperty(None)
+    leftKeyEnable = True
+    rightKeyEnable = True
+    upKeyEnable = True
+    downKeyEnable = True
     
     #Percentage way up background when ball pos will scroll background
     scroll_pos = 1.0/2.0
@@ -63,12 +66,8 @@ class MarshmallowGame(Widget):
         self.addBlock(block.NUM_BLOCKS)
 
         #Reset character position
-
-
         #Reset score
         
-
-
     def update(self, dt):
 
         #### UPDATE BALL ####
@@ -79,23 +78,28 @@ class MarshmallowGame(Widget):
             #check player collision
             if(self.ball.playerCollisionX(b.pos[0], b.pos[1], b.size[0], b.size[1])):
                 #restrict right movement
-                pass
+                self.rightKeyEnable = False
+                self.leftKeyEnable = True
+                print ("right side hit")
                 
-                #if(self.ball.velocityX > 0): self.ball.velocityX = 0
-            else:
+            elif(self.ball.playerCollisionX(b.pos[0], b.pos[1], b.size[0], b.size[1]) == False):
+
                 #restrict left movement
-                #if(self.ball.velocityX < 0): self.ball.velocityX = 0
-                pass
+                self.leftKeyEnable = False
+                self.rightKeyEnable = True
+                print ("left side hit")
 
             if(self.ball.playerCollisionY(b.pos[0], b.pos[1], b.size[0], b.size[1])):
                 #restrict down movement
-                #if(self.ball.velocityY < 0): self.ball.velocityY = 0
-                pass
+                self.downKeyEnable = False
+                self.upKeyEnable = True
+                print ("down side hit")
 
-            else:
+            elif(self.ball.playerCollisionY(b.pos[0], b.pos[1], b.size[0], b.size[1]) == False):
                 #restrict up movement
-                #if(self.ball.velocityY > 0): self.ball.velocityY = 0
-                pass
+                self.upKeyEnable = False
+                self.downKeyEnable = True
+                print ("up side hit")
 
 
         #### UPDATE BLOCKS ####
@@ -122,7 +126,7 @@ class MarshmallowGame(Widget):
 
             #Conditions to call addBlock()
             if (b.fallSpeed == 0 and b.spawnBlock):
-                self.addBlock(1)
+                #self.addBlock(1)
                 b.spawnBlock = False
 
         #### UPDATE BACKGROUND ####
@@ -136,8 +140,14 @@ class MarshmallowGame(Widget):
     #When a key is pressed
     def keyPressed(self, keyboard, keycode, text, modifier):
         #Horizontal movement
-        if(keycode[1] == 'left' or keycode[1] == 'right' or keycode[1] == 'up' or keycode[1] == 'down'):
-            self.ball.move(keycode[1])
+        if(keycode[1] == 'left'):
+            self.ball.moveLeft(self.leftKeyEnable)
+        if(keycode[1] == 'right'):
+            self.ball.moveRight(self.rightKeyEnable)
+        if(keycode[1] == 'up'): 
+            self.ball.moveUp(self.upKeyEnable)
+        if(keycode[1] == 'down'):
+            self.ball.moveDown(self.downKeyEnable)
 
         #We need to make this into a reset button 
         if(keycode[1] == 'delete'):
