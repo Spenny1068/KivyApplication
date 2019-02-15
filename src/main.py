@@ -18,21 +18,23 @@ import background
 import player
 import block
 
-#### TODO ####
+#####    TODO    #####
 #Why wont logging.debug work tf
 #Figure out how to implement heightScore
-#Implement restart button so we don't have to CTRL+C every time
-#Implement character-block collision
-#Add functionality to move function to disable arrow key when collision happens
+#Implement restart button to call the resetPlayScreen function
+#Fix and optimize when character hits bottom of block
+#Needs code refactor for character-block collision
 
-#Main game class
+#####    MAIN GAME CLASS   #####
 class MarshmallowGame(Widget):
     background = ObjectProperty(None)
     ball = ObjectProperty(None)
-    leftKeyEnable = True
-    rightKeyEnable = True
-    upKeyEnable = True
-    downKeyEnable = True
+    leftKeyEnable, rightKeyEnable, upKeyEnable, downKeyEnable = True, True, True, True
+
+    b_collision = None
+    t_collision = None
+    l_collision = None
+    r_collision = None
     
     #Percentage way up background when ball pos will scroll background
     scroll_pos = 1.0/2.0
@@ -70,39 +72,81 @@ class MarshmallowGame(Widget):
         
     def update(self, dt):
 
-        #### UPDATE BALL ####
+        #####    UPDATE CHARACTER   #####
         self.ball.update()
 
+        #Update character collision
         for index, b in enumerate(block.blocks):
+            b.block_bottom = b.pos[1] + b.size[1]
+            b.block_right = b.pos[0] + b.size[0]
 
-            #check player collision
-            if(self.ball.playerCollisionX(b.pos[0], b.pos[1], b.size[0], b.size[1])):
-                #restrict right movement
-                self.rightKeyEnable = False
-                self.leftKeyEnable = True
-                print ("right side hit")
+            self.b_collision = b.block_bottom - self.ball.pos[1]
+            self.t_collision = self.ball.player_bottom - b.pos[1]
+            self.l_collision = self.ball.player_right - b.pos[0]
+            self.r_collision = b.block_right - self.ball.pos[0]
+
+
+            #Check player-block collision
+            if(self.ball.playerCollision(block.blocks[index].pos[0], block.blocks[index].pos[1], block.blocks[index].size[0], block.blocks[index].size[1])):
+                #Check if player is below the block
+                if((self.t_collision < self.b_collision) and (self.t_collision < self.l_collision) and (self.t_collision < self.r_collision)):
+
+                    #restrict up movement
+                    self.upKeyEnable = False
+                    self.downKeyEnable = True
+
+                    #Make velocity = 0
+                    self.ball.velocityY = 0
+
+                    print ("bottom side hit")
+                    
+                #Check if player is above the block
+                if((self.b_collision < self.t_collision) and (self.b_collision < self.l_collision) and (self.b_collision < self.r_collision)):
+
+                    #restrict down movement
+                    self.downKeyEnable = False
+                    self.upKeyEnable = True
+
+                    #Make velocity = 0
+                    self.ball.velocityY = 0
+
+                    print ("top side hit")
+
                 
-            elif(self.ball.playerCollisionX(b.pos[0], b.pos[1], b.size[0], b.size[1]) == False):
+                #Check if player is to the left of block
+                if((self.l_collision < self.r_collision) and (self.l_collision < self.t_collision) and (self.l_collision < self.b_collision)):
 
-                #restrict left movement
-                self.leftKeyEnable = False
-                self.rightKeyEnable = True
-                print ("left side hit")
+                    #restrict right movement
+                    self.rightKeyEnable = False
+                    self.leftKeyEnable = True
 
-            if(self.ball.playerCollisionY(b.pos[0], b.pos[1], b.size[0], b.size[1])):
-                #restrict down movement
-                self.downKeyEnable = False
-                self.upKeyEnable = True
-                print ("down side hit")
+                    #Make velocity = 0
+                    self.ball.velocityX = 0
 
-            elif(self.ball.playerCollisionY(b.pos[0], b.pos[1], b.size[0], b.size[1]) == False):
-                #restrict up movement
-                self.upKeyEnable = False
-                self.downKeyEnable = True
-                print ("up side hit")
+                    print ("left side hit")
+
+                #Check if player is to the right of block
+                if((self.r_collision < self.l_collision) and (self.r_collision < self.t_collision) and (self.r_collision < self.b_collision)):
+
+                    #restrict left movement
+                    self.leftKeyEnable = False
+                    self.rightKeyEnable = True
+
+                    #Make velocity = 0
+                    self.ball.velocityX = 0
+
+                    print ("right side hit")
+
+            #No player-block collision
+            else:
+
+                #Enable all keys
+                self.downKeyEnable, self.upKeyEnable = True, True
+                self.leftKeyEnable, self.rightKeyEnable = True, True
+                print ("no collsion")
 
 
-        #### UPDATE BLOCKS ####
+        #####    UPDATE BLOCKS    #####
         #logging.info('len(block.blocks) = %s', len(block.blocks))
 
         for index, b in enumerate(block.blocks):
@@ -129,21 +173,22 @@ class MarshmallowGame(Widget):
                 #self.addBlock(1)
                 b.spawnBlock = False
 
-        #### UPDATE BACKGROUND ####
+        #####    UPDATE BACKGROUND    #####
         if(self.ball.vCenter > self.size[1] * self.scroll_pos):
             self.background.update()
             for b in block.blocks: b.dissapear(self.background.scrollSpeed)
 
 
-    #####     HANDLE INPUT    #######
-
-    #When a key is pressed
+    #####    HANDLE INPUT   ######
     def keyPressed(self, keyboard, keycode, text, modifier):
+
         #Horizontal movement
         if(keycode[1] == 'left'):
             self.ball.moveLeft(self.leftKeyEnable)
         if(keycode[1] == 'right'):
             self.ball.moveRight(self.rightKeyEnable)
+
+        #Vertical movement
         if(keycode[1] == 'up'): 
             self.ball.moveUp(self.upKeyEnable)
         if(keycode[1] == 'down'):
@@ -156,6 +201,7 @@ class MarshmallowGame(Widget):
         #Pressing escape will permanently unbind keyboard
         if(keycode[1] == 'escape'):
             self.killKeyboard()
+
         #Return True to accept the key. Otherwise, it will be used by the system.
         return True
 

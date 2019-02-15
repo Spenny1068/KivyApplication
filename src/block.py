@@ -6,18 +6,20 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 import random
 
-#Global variables
+#####    GLOBAL VARIABLES    #####
 NUM_BLOCKS = 1 #Remember theres 1 extra block not in array above screen
 MAX_BLOCKS = 30 #Maximum number of blocks allowed on screen
 blocks = [] * NUM_BLOCKS #Blocks array
 
 
-#Array of falling blocks
+#####    ARRAY OF FALLING BLOCKS    #####
 class Block(Widget):
     ground = None        #boolean True if block.pos[1] < 0 
     invisible = None     #boolean True if block.pos[1] < -block.size[1]
     spawnBlock = None    #boolean True if block has never had ground = True
     blockCol = None      #boolean True if block has collided with any other widget
+    block_bottom = None
+    block_right = None
 
     #Each blocks has its own random xpos, fallSpeed
     def __init__(self, *args, **kwargs):
@@ -81,3 +83,4 @@ class Block(Widget):
     def dissapear(self, speed):
         if (self.ground or self.fallSpeed == 0):
             self.pos[1] -= speed
+

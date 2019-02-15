@@ -6,11 +6,13 @@ from kivy.uix.widget import Widget
 import logging
 logging.basicConfig(level=logging.CRITICAL)
 
-#Main Character
+#####    MAIN CHARACTER    #####
 class Ball(Widget):
     heightScore = NumericProperty(0)
     vCenter = None  #Vertical center of character
     hCenter = None  #Horizontal center of character
+    player_bottom = None
+    player_right = None
 
     def __init__(self, *args, **kwargs):
         super(Ball, self).__init__(**kwargs)
@@ -19,6 +21,7 @@ class Ball(Widget):
         self.gravity = 1.5   #vertical drag
         self.dragX = 1.1     #Horizontal friction
             
+    #####    MOVE FUNCTIONS    #####
     def moveLeft(self, enabled):
         if (enabled): self.velocityX = -10
 
@@ -31,29 +34,22 @@ class Ball(Widget):
     def moveDown(self, enabled):
         if (enabled): self.velocityY = -10
 
-    def playerCollisionX(self, x, y, width, height):
+    ######    COLLISION DETECTION    #####
+    def playerCollision(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
-            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX > 0):
-            return True
-            
-        elif ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
-            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX < 0):
-            return False
+            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
+            return True     
 
-    def playerCollisionY(self, x, y, width, height):
-        if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
-            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityY < 0):
-            return True
-            
-        elif ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
-            (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y) and self.velocityX >= 0):
-            return False
-
+    ##### PLAYER UPDATE #####
     def update(self):
         #update vCenter and hCenter
         self.vCenter = self.pos[1] + (self.size[1] / 2) 
         self.hCenter = self.pos[0] + (self.size[0] / 2)
         
+        #update edges of player widget
+        self.player_bottom = self.pos[1] + self.size[1]
+        self.player_right = self.pos[0] + self.size[0]
+
         #position of ball will move by the velocity every frame
         self.pos[0] += self.velocityX
         self.pos[1] += self.velocityY
