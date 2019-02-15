@@ -1,13 +1,14 @@
 import kivy
+import random
+import logging
+logging.basicconfig(level=logging.critical)
+
 kivy.require('1.10.1')
+
 from kivy.uix.widget import Widget
 
-import logging
-logging.basicConfig(level=logging.CRITICAL)
-import random
-
 #####    GLOBAL VARIABLES    #####
-NUM_BLOCKS = 1 #Remember theres 1 extra block not in array above screen
+NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
 MAX_BLOCKS = 30 #Maximum number of blocks allowed on screen
 blocks = [] * NUM_BLOCKS #Blocks array
 

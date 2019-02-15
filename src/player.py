@@ -1,10 +1,12 @@
 import kivy
+import logging
+logging.basicConfig(level=logging.CRITICAL)
+
 kivy.require('1.10.1')
+
 from kivy.properties import ObjectProperty, NumericProperty
 from kivy.uix.widget import Widget
 
-import logging
-logging.basicConfig(level=logging.CRITICAL)
 
 #####    MAIN CHARACTER    #####
 class Ball(Widget):

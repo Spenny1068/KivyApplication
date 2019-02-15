@@ -1,7 +1,8 @@
-#!/bin/python
+#!/bin/python3
 import kivy
+import sys
 import logging
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.WARNING)
 
 kivy.require('1.10.1')
 
@@ -23,14 +24,20 @@ import block
 #Figure out how to implement heightScore
 #Implement restart button to call the resetPlayScreen function
 #Fix and optimize when character hits bottom of block
+#Fix key enable/disable
 #Needs code refactor for character-block collision
+
+FPS = 30 #fps the game will run at 
 
 #####    MAIN GAME CLASS   #####
 class MarshmallowGame(Widget):
     background = ObjectProperty(None)
     ball = ObjectProperty(None)
+
+    #Keys should start out all enabled
     leftKeyEnable, rightKeyEnable, upKeyEnable, downKeyEnable = True, True, True, True
 
+    #For character-block collision detection
     b_collision = None
     t_collision = None
     l_collision = None
@@ -41,7 +48,7 @@ class MarshmallowGame(Widget):
 
     def __init__(self, *args, **kwargs):
         super(MarshmallowGame, self).__init__(**kwargs)
-        Clock.schedule_interval(self.update, 1.0/30.0)
+        Clock.schedule_interval(self.update, 1.0/FPS)
         self._keyboard = Window.request_keyboard(self.killKeyboard, self, 'text')   #Request Keyboard
         self._keyboard.bind(on_key_down=self.keyPressed)    #key pressed event
         self._keyboard.bind(on_key_up=self.keyReleased)     #key release event
@@ -52,6 +59,7 @@ class MarshmallowGame(Widget):
     def initBlocks(self):
         self.addBlock(block.NUM_BLOCKS)
 
+    #Adds a block to blocks[] and screen
     def addBlock(self, n):
         #logging.info('new block index %s', len(block.blocks))
         for x in range(0, n):
@@ -70,6 +78,8 @@ class MarshmallowGame(Widget):
         #Reset character position
         #Reset score
         
+
+    #Main update function runs at set frames per second
     def update(self, dt):
 
         #####    UPDATE CHARACTER   #####
@@ -77,6 +87,8 @@ class MarshmallowGame(Widget):
 
         #Update character collision
         for index, b in enumerate(block.blocks):
+
+            #For block-character collision detection
             b.block_bottom = b.pos[1] + b.size[1]
             b.block_right = b.pos[0] + b.size[0]
 
@@ -88,6 +100,7 @@ class MarshmallowGame(Widget):
 
             #Check player-block collision
             if(self.ball.playerCollision(block.blocks[index].pos[0], block.blocks[index].pos[1], block.blocks[index].size[0], block.blocks[index].size[1])):
+
                 #Check if player is below the block
                 if((self.t_collision < self.b_collision) and (self.t_collision < self.l_collision) and (self.t_collision < self.r_collision)):
 
@@ -98,7 +111,7 @@ class MarshmallowGame(Widget):
                     #Make velocity = 0
                     self.ball.velocityY = 0
 
-                    print ("bottom side hit")
+                    #logging.info('bottom side hit')
                     
                 #Check if player is above the block
                 if((self.b_collision < self.t_collision) and (self.b_collision < self.l_collision) and (self.b_collision < self.r_collision)):
@@ -110,7 +123,7 @@ class MarshmallowGame(Widget):
                     #Make velocity = 0
                     self.ball.velocityY = 0
 
-                    print ("top side hit")
+                    #logging.info('top side hit')
 
                 
                 #Check if player is to the left of block
@@ -123,7 +136,7 @@ class MarshmallowGame(Widget):
                     #Make velocity = 0
                     self.ball.velocityX = 0
 
-                    print ("left side hit")
+                    #logging.info('left side hit')
 
                 #Check if player is to the right of block
                 if((self.r_collision < self.l_collision) and (self.r_collision < self.t_collision) and (self.r_collision < self.b_collision)):
@@ -135,7 +148,7 @@ class MarshmallowGame(Widget):
                     #Make velocity = 0
                     self.ball.velocityX = 0
 
-                    print ("right side hit")
+                    #logging.info('right side hit')
 
             #No player-block collision
             else:
@@ -143,16 +156,15 @@ class MarshmallowGame(Widget):
                 #Enable all keys
                 self.downKeyEnable, self.upKeyEnable = True, True
                 self.leftKeyEnable, self.rightKeyEnable = True, True
-                print ("no collsion")
-
+                #logging.info('no collsion')
 
         #####    UPDATE BLOCKS    #####
-        #logging.info('len(block.blocks) = %s', len(block.blocks))
+        #logging.info('len(blocks) = %s', len(block.blocks))
 
         for index, b in enumerate(block.blocks):
 
             if (len(block.blocks) >= block.MAX_BLOCKS):
-                exit()
+                sys.exit('Max blocks on screen reached')
 
             #logging.info('Index, blockCol: %s %s', index, b.blockCol)
 
@@ -170,7 +182,7 @@ class MarshmallowGame(Widget):
 
             #Conditions to call addBlock()
             if (b.fallSpeed == 0 and b.spawnBlock):
-                #self.addBlock(1)
+                self.addBlock(1)
                 b.spawnBlock = False
 
         #####    UPDATE BACKGROUND    #####
