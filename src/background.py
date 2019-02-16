@@ -8,6 +8,7 @@ from kivy.uix.widget import Widget
 class Background(Widget):
     scrollSpeed = 2     #Speed of background scroll
 
+    #####    SCROLL SCREEN    #####
     def update(self):
         self.pos[1] -= self.scrollSpeed
         if(self.pos[1] < -self.size[1]):

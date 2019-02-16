@@ -27,6 +27,7 @@ import block
 #Fix key enable/disable
 #Needs code refactor for character-block collision
 
+#####    GLOBAL VARIABLES    #####
 FPS = 30 #fps the game will run at 
 
 #####    MAIN GAME CLASS   #####
@@ -67,7 +68,7 @@ class MarshmallowGame(Widget):
             self.ids.blk.add_widget(blck)
             block.blocks.append(blck)   
 
-    #So we don't have to CTRL+C everytime to reset game
+    #####    RESET GAME    #####
     def resetPlayScreen(self):
 
         #Move all block.blocks above screen and then empty array
@@ -79,7 +80,7 @@ class MarshmallowGame(Widget):
         #Reset score
         
 
-    #Main update function runs at set frames per second
+    #####    MAIN UPDATE FUNCTION    #####
     def update(self, dt):
 
         #####    UPDATE CHARACTER   #####
@@ -229,9 +230,11 @@ class MarshmallowGame(Widget):
         self._keyboard.unbind(on_key_down=self.keyPressed)
 
 
+#####    SCREENS CLASS    #####
 class ScreenManager(ScreenManager):
     pass
 
+#####    MAIN BUILD    #####
 class MarshmallowApp(App):  
     def build(self):
         Window.size = (600, 600)

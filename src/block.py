@@ -12,7 +12,6 @@ NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
 MAX_BLOCKS = 30 #Maximum number of blocks allowed on screen
 blocks = [] * NUM_BLOCKS #Blocks array
 
-
 #####    ARRAY OF FALLING BLOCKS    #####
 class Block(Widget):
     ground = None        #boolean True if block.pos[1] < 0 
@@ -33,6 +32,7 @@ class Block(Widget):
         #self.pos[0] = 20
         #self.pos[1] = 1200
 
+    #####    UPDATE BLOCKS    #####
     def update(self):
         self.pos[1] -= self.fallSpeed
         if (self.pos[1] < 0):
