@@ -24,7 +24,6 @@ import block
 #Fix logging across multiple files
 #Figure out how to implement heightScore
 #Implement restart button to call the resetPlayScreen function
-#Fix and optimize when character hits bottom of block
 #Fix key enable/disable
 #Needs code refactor for character-block collision
 
@@ -126,6 +125,11 @@ class MarshmallowGame(Widget):
                     #Make velocity = 0
                     self.ball.velocityY = 0
 
+    
+                    #Player should never be able to pass through top of block
+                    errorSpace = 9
+                    self.ball.pos[1] = b.pos[1] + b.size[1] - errorSpace
+
                     #logging.info('top side hit')
 
                 
@@ -165,7 +169,8 @@ class MarshmallowGame(Widget):
         #logging.info('len(blocks) = %s', len(block.blocks))
 
         for index, b in enumerate(block.blocks):
-
+            
+            #####    GAME OVER CONDITION 2    #####
             if (len(block.blocks) >= block.MAX_BLOCKS):
                 sys.exit('Max blocks on screen reached')
 
