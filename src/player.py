@@ -1,5 +1,7 @@
+
 import kivy
 import logging
+import sys
 logging.basicConfig(level=logging.CRITICAL)
 
 kivy.require('1.10.1')
@@ -42,6 +44,17 @@ class Ball(Widget):
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
             return True     
 
+    #####    GAME OVER CONDITION 1    #####
+    def squished(self, blockFloor):
+        playerHeight = self.size[1]
+        distance = blockFloor - self.pos[1]
+        headRoom = 25
+
+        #If distance between the blocks floor and the players floor is < than player height
+        if (distance < playerHeight - headRoom):
+            sys.exit('Squished - Game Over')
+
+
     ##### PLAYER UPDATE #####
     def update(self):
         #update vCenter and hCenter
@@ -67,6 +80,10 @@ class Ball(Widget):
             self.pos[0] = 1000
 
         #Floor Level
-        if(self.pos[1] < 5):
+        if(self.pos[1] < 0):
             self.velocityY = 0
+
+            #Player should always stay above or equal to floor level
+            self.pos[1] = 0
+            assert (self.pos[1] >= 0), "Player is below floor level"
 

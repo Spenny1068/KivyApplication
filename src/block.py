@@ -1,7 +1,7 @@
 import kivy
 import random
 import logging
-logging.basicconfig(level=logging.critical)
+logging.basicConfig(level=logging.critical)
 
 kivy.require('1.10.1')
 

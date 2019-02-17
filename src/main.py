@@ -21,6 +21,7 @@ import block
 
 #####    TODO    #####
 #Why wont logging.debug work tf
+#Fix logging across multiple files
 #Figure out how to implement heightScore
 #Implement restart button to call the resetPlayScreen function
 #Fix and optimize when character hits bottom of block
@@ -78,7 +79,6 @@ class MarshmallowGame(Widget):
 
         #Reset character position
         #Reset score
-        
 
     #####    MAIN UPDATE FUNCTION    #####
     def update(self, dt):
@@ -98,7 +98,6 @@ class MarshmallowGame(Widget):
             self.l_collision = self.ball.player_right - b.pos[0]
             self.r_collision = b.block_right - self.ball.pos[0]
 
-
             #Check player-block collision
             if(self.ball.playerCollision(block.blocks[index].pos[0], block.blocks[index].pos[1], block.blocks[index].size[0], block.blocks[index].size[1])):
 
@@ -109,8 +108,11 @@ class MarshmallowGame(Widget):
                     self.upKeyEnable = False
                     self.downKeyEnable = True
 
-                    #Make velocity = 0
-                    self.ball.velocityY = 0
+                    #Bumping effect
+                    self.ball.velocityY = -10
+
+                    #Check if player is squished
+                    self.ball.squished(b.pos[1])
 
                     #logging.info('bottom side hit')
                     
@@ -134,8 +136,8 @@ class MarshmallowGame(Widget):
                     self.rightKeyEnable = False
                     self.leftKeyEnable = True
 
-                    #Make velocity = 0
-                    self.ball.velocityX = 0
+                    #Bumping effect
+                    self.ball.velocityX = -3
 
                     #logging.info('left side hit')
 
@@ -146,8 +148,8 @@ class MarshmallowGame(Widget):
                     self.leftKeyEnable = False
                     self.rightKeyEnable = True
 
-                    #Make velocity = 0
-                    self.ball.velocityX = 0
+                    #Bumping effect
+                    self.ball.velocityX = 3
 
                     #logging.info('right side hit')
 
