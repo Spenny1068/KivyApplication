@@ -1,4 +1,6 @@
 import kivy
+import logging
+logging.basicConfig(level=logging.critical)
 
 kivy.require('1.10.1')
 
@@ -10,6 +12,8 @@ class Background(Widget):
 
     #####    SCROLL SCREEN    #####
     def update(self):
+
+        #logging.info('ceilingHeight: %s', str(self.pos[1]))
         self.pos[1] -= self.scrollSpeed
         if(self.pos[1] < -self.size[1]):
             self.pos = [0, 0]

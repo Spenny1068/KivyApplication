@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/Usr/bin/env python3
 import kivy
 import sys
 import logging
@@ -14,6 +14,9 @@ from kivy.core.window import Keyboard
 from kivy.properties import ObjectProperty, NumericProperty
 from kivy.clock import Clock
 from kivy.clock import mainthread
+from kivy.config import Config 
+
+Config.set('graphics', 'resizable', True)
 
 import background
 import player
@@ -84,6 +87,7 @@ class MarshmallowGame(Widget):
 
         #####    UPDATE CHARACTER   #####
         self.ball.update()
+        logging.info('playerPos[1]: %s', str(self.ball.pos[1]))
 
         #Update character collision
         for index, b in enumerate(block.blocks):
@@ -110,7 +114,8 @@ class MarshmallowGame(Widget):
                     #Bumping effect
                     self.ball.velocityY = -10
 
-                    #Check if player is squished
+
+                    #####    GAME OVER CONDITION 1 - player squished    #####
                     self.ball.squished(b.pos[1])
 
                     #logging.info('bottom side hit')
@@ -170,7 +175,7 @@ class MarshmallowGame(Widget):
 
         for index, b in enumerate(block.blocks):
             
-            #####    GAME OVER CONDITION 2    #####
+            #####    GAME OVER CONDITION 2 - max number of blocks    #####
             if (len(block.blocks) >= block.MAX_BLOCKS):
                 sys.exit('Max blocks on screen reached')
 

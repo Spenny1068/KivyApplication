@@ -7,6 +7,7 @@ logging.basicConfig(level=logging.CRITICAL)
 kivy.require('1.10.1')
 
 from kivy.properties import ObjectProperty, NumericProperty
+from kivy.core.window import Window
 from kivy.uix.widget import Widget
 
 
@@ -44,16 +45,18 @@ class Ball(Widget):
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
             return True     
 
-    #####    GAME OVER CONDITION 1    #####
     def squished(self, blockFloor):
         playerHeight = self.size[1]
         distance = blockFloor - self.pos[1]
         headRoom = 25
 
-        #If distance between the blocks floor and the players floor is < than player height
+        # if distance between the blocks floor and the players floor is < than player height
         if (distance < playerHeight - headRoom):
             sys.exit('Squished - Game Over')
 
+    def wrap(self):
+        if(self.pos[0] > Window.size[0]): self.pos[0] = 0
+        elif(self.pos[0] < 0): self.pos[0] = Window.size[0]
 
     ##### PLAYER UPDATE #####
     def update(self):
@@ -69,15 +72,13 @@ class Ball(Widget):
         self.pos[0] += self.velocityX
         self.pos[1] += self.velocityY
 
-        #only if ball is moving horizontally, apply drag. Always apply gravity
+        # only if ball is moving horizontally, apply drag. Always apply gravity
         self.velocityY -= self.gravity
         if(self.velocityX != 0):
             self.velocityX /=self.dragX
 
-        if(self.pos[0] > 1000):
-            self.pos[0] = 0
-        elif(self.pos[0] < 0):
-            self.pos[0] = 1000
+        # wrap player coordinates
+        self.wrap()
 
         #Floor Level
         if(self.pos[1] < 0):
