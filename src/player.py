@@ -11,11 +11,11 @@ kivy.require('1.10.1')
 
 #####    MAIN CHARACTER    #####
 class Ball(Widget):
-    heightScore = NumericProperty(0)
     vCenter = None  # vertical center of character
     hCenter = None  # horizontal center of character
     player_bottom = None
     player_right = None
+    height = NumericProperty(0)
     heightScore = NumericProperty(0)
 
     def __init__(self, *args, **kwargs):
@@ -56,11 +56,12 @@ class Ball(Widget):
         elif(self.pos[0] < 0): self.pos[0] = Window.size[0]
 
     def maxHeight(self):
-        if (self.pos[1] > self.heightScore):
-            self.heightScore = self.pos[1]
+        if (self.pos[1] > self.height):
+            self.height = self.pos[1]
 
     ##### PLAYER UPDATE #####
     def update(self):
+
         # update vCenter and hCenter
         self.vCenter = self.pos[1] + (self.size[1] / 2) 
         self.hCenter = self.pos[0] + (self.size[0] / 2)

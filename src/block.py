@@ -26,20 +26,29 @@ class Block(Widget):
         super(Block, self).__init__(**kwargs)
         self.ground, self.invisible, self.spawnBlock, self.blockCol = False, False, True, False
         self.fallSpeed = 10
+        self.inc = 0
         self.findPos()
 
     #####    UPDATE BLOCKS    #####
     def update(self):
-        self.pos[1] -= self.fallSpeed
+
+        if (self.fallSpeed != 0):
+            self.pos[1] -= self.fallSpeed + self.inc
+        self.inc = 0
 
         if (self.pos[1] > Window.size[1] and self.fallSpeed == 0):
             sys.exit("height limit reached")
 
+        # if block hits ground
         if (self.pos[1] < 0):
             self.fallSpeed = 0 
             self.ground = True
+
+        # if block hits another block
         if (self.blockCol):
             self.fallSpeed = 0
+
+        # if block is completely off screen
         if (self.pos[1] < -self.size[1]):
             self.invisible = True
 

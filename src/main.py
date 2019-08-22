@@ -30,8 +30,8 @@ import block
 # fix key enable/disable
 # needs code refactor for character-block collision
 # should background scroll speed move at the same speed of player?
-# block fall speed should be faster when background is scrolling
 # height score is in relative to the bottom of the screen atm
+# scroll is not happening at half way ???
 
 #####    GLOBAL VARIABLES    #####
 FPS = 30 # fps the game will run at 
@@ -90,7 +90,8 @@ class MarshmallowGame(Widget):
 
         #####    UPDATE CHARACTER   #####
         self.ball.update()
-        logging.info('playerPos[1]: %s', str(self.ball.pos[1]))
+        self.ball.heightScore = (self.ball.height + self.background.scrollDistance) // 20
+        #logging.info('playerPos[1]: %s', str(self.ball.pos[1]))
 
         # update character collision
         for index, b in enumerate(block.blocks):
@@ -118,7 +119,7 @@ class MarshmallowGame(Widget):
                     self.ball.velocityY = -10
 
                     #####    GAME OVER CONDITION 1 - player squished    #####
-                    self.ball.squished(b.pos[1])
+                    #self.ball.squished(b.pos[1])
 
                     #logging.info('bottom side hit')
                     
@@ -198,10 +199,13 @@ class MarshmallowGame(Widget):
                 b.spawnBlock = False
 
         #####    UPDATE BACKGROUND    #####
-        if(self.ball.vCenter > self.size[1] * self.scroll_pos):
+        if(self.ball.vCenter > Window.size[1] * self.scroll_pos):
             self.background.update()
-            for b in block.blocks: b.dissapear(self.background.scrollSpeed)
 
+            # when background is scrolling, blocks fall faster and blocks on ground fade off screen
+            for b in block.blocks: 
+                b.dissapear(self.background.scrollSpeed)
+                b.inc = 5   # block fallSpeed gain
 
     #####    HANDLE INPUT   ######
     def keyPressed(self, keyboard, keycode, text, modifier):
