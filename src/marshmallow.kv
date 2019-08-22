@@ -1,4 +1,3 @@
-
 <MarshmallowGame>:
     background: backgroundPic
     ball: marshmallow_ball
@@ -12,6 +11,13 @@
 
     Block:
         id: blk
+
+    # height Score
+    Label: 
+        font_size: 50
+        center_x: root.width - 100
+        top: root.top - 25
+        text: str(root.ball.heightScore)
 
 <Background>:
     #Make sure background is always size of window

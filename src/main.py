@@ -23,47 +23,50 @@ import player
 import block
 
 #####    TODO    #####
-#Why wont logging.debug work tf
-#Fix logging across multiple files
-#Figure out how to implement heightScore
-#Implement restart button to call the resetPlayScreen function
-#Fix key enable/disable
-#Needs code refactor for character-block collision
+# why wont logging.debug work tf
+# fix logging across multiple files
+# figure out how to implement heightScore
+# implement restart button to call the resetPlayScreen function
+# fix key enable/disable
+# needs code refactor for character-block collision
+# should background scroll speed move at the same speed of player?
+# block fall speed should be faster when background is scrolling
+# height score is in relative to the bottom of the screen atm
 
 #####    GLOBAL VARIABLES    #####
-FPS = 30 #fps the game will run at 
+FPS = 30 # fps the game will run at 
 
 #####    MAIN GAME CLASS   #####
 class MarshmallowGame(Widget):
     background = ObjectProperty(None)
     ball = ObjectProperty(None)
 
-    #Keys should start out all enabled
+    # keys should start out all enabled
     leftKeyEnable, rightKeyEnable, upKeyEnable, downKeyEnable = True, True, True, True
 
-    #For character-block collision detection
+    # for character-block collision detection
     b_collision = None
     t_collision = None
     l_collision = None
     r_collision = None
     
-    #Percentage way up background when ball pos will scroll background
+    # percentage way up background when ball pos will scroll background
     scroll_pos = 1.0/2.0
 
     def __init__(self, *args, **kwargs):
         super(MarshmallowGame, self).__init__(**kwargs)
         Clock.schedule_interval(self.update, 1.0/FPS)
-        self._keyboard = Window.request_keyboard(self.killKeyboard, self, 'text')   #Request Keyboard
-        self._keyboard.bind(on_key_down=self.keyPressed)    #key pressed event
-        self._keyboard.bind(on_key_up=self.keyReleased)     #key release event
-        self.initBlocks()   #initialize array of block.blocks
+        self._keyboard = Window.request_keyboard(self.killKeyboard, self, 'text')   # request Keyboard
+        self._keyboard.bind(on_key_down=self.keyPressed)    # key pressed event
+        self._keyboard.bind(on_key_up=self.keyReleased)     # key release event
+        self.initBlocks()   # initialize array of block.blocks
     
     
-    @mainthread #delay function so kv file gets scanned first, making the ids list viable   
+    @mainthread # delay function so kv file gets scanned first, making the ids list viable   
     def initBlocks(self):
         self.addBlock(block.NUM_BLOCKS)
 
-    #Adds a block to blocks[] and screen
+    # adds a block to blocks[] and screen
     def addBlock(self, n):
         #logging.info('new block index %s', len(block.blocks))
         for x in range(0, n):
@@ -74,13 +77,13 @@ class MarshmallowGame(Widget):
     #####    RESET GAME    #####
     def resetPlayScreen(self):
 
-        #Move all block.blocks above screen and then empty array
+        # move all block.blocks above screen and then empty array
         for b in block.blocks: b.pos[1] = 1500
         block.blocks.clear()
         self.addBlock(block.NUM_BLOCKS)
 
-        #Reset character position
-        #Reset score
+        # reset character position
+        # reset score
 
     #####    MAIN UPDATE FUNCTION    #####
     def update(self, dt):
@@ -89,10 +92,10 @@ class MarshmallowGame(Widget):
         self.ball.update()
         logging.info('playerPos[1]: %s', str(self.ball.pos[1]))
 
-        #Update character collision
+        # update character collision
         for index, b in enumerate(block.blocks):
 
-            #For block-character collision detection
+            # for block-character collision detection
             b.block_bottom = b.pos[1] + b.size[1]
             b.block_right = b.pos[0] + b.size[0]
 
@@ -101,71 +104,67 @@ class MarshmallowGame(Widget):
             self.l_collision = self.ball.player_right - b.pos[0]
             self.r_collision = b.block_right - self.ball.pos[0]
 
-            #Check player-block collision
+            # check player-block collision
             if(self.ball.playerCollision(block.blocks[index].pos[0], block.blocks[index].pos[1], block.blocks[index].size[0], block.blocks[index].size[1])):
 
-                #Check if player is below the block
+                # check if player is below the block
                 if((self.t_collision < self.b_collision) and (self.t_collision < self.l_collision) and (self.t_collision < self.r_collision)):
 
-                    #restrict up movement
+                    # restrict up movement
                     self.upKeyEnable = False
                     self.downKeyEnable = True
 
-                    #Bumping effect
+                    # bumping effect
                     self.ball.velocityY = -10
-
 
                     #####    GAME OVER CONDITION 1 - player squished    #####
                     self.ball.squished(b.pos[1])
 
                     #logging.info('bottom side hit')
                     
-                #Check if player is above the block
+                # check if player is above the block
                 if((self.b_collision < self.t_collision) and (self.b_collision < self.l_collision) and (self.b_collision < self.r_collision)):
 
-                    #restrict down movement
+                    # restrict down movement
                     self.downKeyEnable = False
                     self.upKeyEnable = True
 
-                    #Make velocity = 0
+                    # make velocity = 0
                     self.ball.velocityY = 0
-
     
-                    #Player should never be able to pass through top of block
+                    # player should never be able to pass through top of block
                     errorSpace = 9
                     self.ball.pos[1] = b.pos[1] + b.size[1] - errorSpace
 
                     #logging.info('top side hit')
 
                 
-                #Check if player is to the left of block
+                # check if player is to the left of block
                 if((self.l_collision < self.r_collision) and (self.l_collision < self.t_collision) and (self.l_collision < self.b_collision)):
 
-                    #restrict right movement
+                    # restrict right movement
                     self.rightKeyEnable = False
                     self.leftKeyEnable = True
 
-                    #Bumping effect
-                    self.ball.velocityX = -3
+                    self.ball.velocityX = 0
 
                     #logging.info('left side hit')
 
-                #Check if player is to the right of block
+                # check if player is to the right of block
                 if((self.r_collision < self.l_collision) and (self.r_collision < self.t_collision) and (self.r_collision < self.b_collision)):
 
-                    #restrict left movement
+                    # restrict left movement
                     self.leftKeyEnable = False
                     self.rightKeyEnable = True
 
-                    #Bumping effect
-                    self.ball.velocityX = 3
+                    self.ball.velocityX = 0
 
                     #logging.info('right side hit')
 
-            #No player-block collision
+            # no player-block collision
             else:
 
-                #Enable all keys
+                # enable all keys
                 self.downKeyEnable, self.upKeyEnable = True, True
                 self.leftKeyEnable, self.rightKeyEnable = True, True
                 #logging.info('no collsion')
@@ -181,19 +180,19 @@ class MarshmallowGame(Widget):
 
             #logging.info('Index, blockCol: %s %s', index, b.blockCol)
 
-            #Check collision for all block.blocks
+            # check collision for all block.blocks
             for index2, b2 in enumerate(block.blocks):
                 if (index2 != index and b.blockCollision(b2.pos[0], b2.pos[1], b2.size[0], b2.size[1])):
                     #logging.info('Collision: Block %s and %s', index, index2)
                     b.blockCol = True
 
-            #update b.pos[1], b.stopped(fallSpeed = 0), b.ground,and b.invisible for every block in array 
+            # update b.pos[1], b.stopped(fallSpeed = 0), b.ground,and b.invisible for every block in array 
             b.update()
 
-            #When block is completely off screen, delete from array
+            # When block is completely off screen, delete from array
             if (b.invisible): del block.blocks[index]
 
-            #Conditions to call addBlock()
+            # conditions to call addBlock()
             if (b.fallSpeed == 0 and b.spawnBlock):
                 self.addBlock(1)
                 b.spawnBlock = False
@@ -207,36 +206,34 @@ class MarshmallowGame(Widget):
     #####    HANDLE INPUT   ######
     def keyPressed(self, keyboard, keycode, text, modifier):
 
-        #Horizontal movement
+        # horizontal movement
         if(keycode[1] == 'left'):
             self.ball.moveLeft(self.leftKeyEnable)
         if(keycode[1] == 'right'):
             self.ball.moveRight(self.rightKeyEnable)
 
-        #Vertical movement
+        # vertical movement
         if(keycode[1] == 'up'): 
             self.ball.moveUp(self.upKeyEnable)
-        if(keycode[1] == 'down'):
-            self.ball.moveDown(self.downKeyEnable)
 
-        #We need to make this into a reset button 
+        # we need to make this into a reset button 
         if(keycode[1] == 'delete'):
             self.resetPlayScreen()
 
-        #Pressing escape will permanently unbind keyboard
+        # pressing escape will permanently unbind keyboard
         if(keycode[1] == 'escape'):
             self.killKeyboard()
 
-        #Return True to accept the key. Otherwise, it will be used by the system.
+        # return True to accept the key. Otherwise, it will be used by the system.
         return True
 
-    #When a key is released
+    # when a key is released
     def keyReleased(self, keyboard, keycode):
         if(keycode[1] == 'w'):
             #logging.info("%s released", keycode[1])
             pass
 
-    #Permanently Unbind keyboard
+    # permanently Unbind keyboard
     def killKeyboard(self):
         logging.warning('Keyboard unbinded')
         self._keyboard.unbind(on_key_down=self.keyPressed)

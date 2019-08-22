@@ -1,14 +1,13 @@
-import kivy
 import logging
 logging.basicConfig(level=logging.critical)
 
-kivy.require('1.10.1')
-
+import kivy
 from kivy.uix.widget import Widget
+kivy.require('1.10.1')
 
 #####    INFINITE SCROLLING BACKGROUND    #####
 class Background(Widget):
-    scrollSpeed = 2     #Speed of background scroll
+    scrollSpeed = 5     #Speed of background scroll
 
     #####    SCROLL SCREEN    #####
     def update(self):

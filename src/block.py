@@ -1,25 +1,23 @@
-import kivy
-import random
-import logging
 import sys
+import logging
+import random
 logging.basicConfig(level=logging.critical)
 
-kivy.require('1.10.1')
-
+import kivy
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 
 #####    GLOBAL VARIABLES    #####
-NUM_BLOCKS = 3 #Remember theres 1 extra block not in array above screen
-MAX_BLOCKS = 50 #Maximum number of blocks allowed on screen
-blocks = [] * NUM_BLOCKS #Blocks array
+NUM_BLOCKS = 3 # remember theres 1 extra block not in array above screen
+MAX_BLOCKS = 50 # maximum number of blocks allowed on screen
+blocks = [] * NUM_BLOCKS # blocks array
 
 #####    ARRAY OF FALLING BLOCKS    #####
 class Block(Widget):
-    ground = None        #boolean True if block.pos[1] < 0 
-    invisible = None     #boolean True if block.pos[1] < -block.size[1]
-    spawnBlock = None    #boolean True if block has never had ground = True
-    blockCol = None      #boolean True if block has collided with any other widget
+    ground = None        # boolean True if block.pos[1] < 0 
+    invisible = None     # boolean True if block.pos[1] < -block.size[1]
+    spawnBlock = None    # boolean True if block has never had ground = True
+    blockCol = None      # boolean True if block has collided with any other widget
     block_bottom = None
     block_right = None
 
@@ -45,15 +43,15 @@ class Block(Widget):
         if (self.pos[1] < -self.size[1]):
             self.invisible = True
 
-    # Find spawn xpos such that its not inside another block
+    # find spawn xpos such that its not inside another block
     def findPos(self):
         self.pos = [random.randint(1, Window.size[0] - self.size[0]), Window.size[1]]
 
         #logging.info('s.pos[0]: %s s.pos[1]: %s s.size[0]: %s s.size[1]: %s', str(self.pos[0]), str(self.pos[1]), str(self.size[1]), str(self.size[0]))
         x = 0
 
-        #Check for collisions. If there is one, reRoll self.pos[0]
-        #TODO: Optimize this loop to check only for other blocks with a spawn y value
+        # check for collisions. If there is one, reRoll self.pos[0]
+        # TODO: Optimize this loop to check only for other blocks with a spawn y value
         while (x < len(blocks)):
             #logging.info('index: %s x: %s y: %s width: %s height: %s', x, blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
             while(self.blockCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])):
@@ -65,15 +63,15 @@ class Block(Widget):
         #logging.info('index: %s Final position = %s', len(blocks), self.pos[0])
         #logging.info('\n')
 
-    #Find a new block self.pos[0]
+    # find a new block self.pos[0]
     def reRoll(self):
-        self.pos = [random.randint(1, Window.size[0]), Window.size[1]]
+        self.pos = [random.randint(1, Window.size[0] - self.size[0]), Window.size[1]]
         #logging.info('reRoll: %s', self.pos[0])
         for x in range(0, len(blocks)):
             self.blockCollision(blocks[x].pos[0], blocks[x].pos[1], blocks[x].size[0], blocks[x].size[1])
 
 
-    #Axis-aligned bounding box collision detection
+    # axis-aligned bounding box collision detection
     def blockCollision(self, x, y, width, height):
         if ((self.pos[0] < x + width) and (self.pos[0] + self.size[0] > x) and \
             (self.pos[1] < y + height) and (self.size[1] + self.pos[1] > y)):
@@ -82,7 +80,7 @@ class Block(Widget):
         else:
             return False
 
-    #If block is on ground, it should dissapear only when character is increasing height
+    # if block is on ground, it should dissapear only when character is increasing height
     def dissapear(self, speed):
         if (self.ground or self.fallSpeed == 0):
             self.pos[1] -= speed
